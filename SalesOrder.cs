@@ -45,6 +45,12 @@ namespace FastLoad
         }
         public int CustomerNum
         { get; set; }
+        public string OrderDateStr
+        { get; set; }
+        public string CancelDateStr
+        { get; set; }
+        public string RequestDateStr
+        { get; set; }
         public string ShipToNum
         {
             get
@@ -167,6 +173,11 @@ namespace FastLoad
             get { return currentLine.OrderQty; }
             set { currentLine.OrderQty = value; }
         }
+        public string PartRevision
+        {
+            get { return currentLine.PartRevision; }
+            set { currentLine.PartRevision = value; }
+        }
         public int OrderLineNum
         {
             get { return currentLine.LineNum; }
@@ -242,7 +253,6 @@ namespace FastLoad
             get { return currentLine.Character01; }
             set { currentLine.Character01 = value; }
         }
-
         public string ShortChar03
         {
             get { return shortChar03; }
