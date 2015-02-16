@@ -40,6 +40,8 @@ namespace FastLoad
             get { return upc;  }
             set { upc = value; }
         }
+        public string PartRevision
+        { get; set; }
         public decimal OrderQty
         {
             get { return orderQty;  }
