@@ -89,7 +89,7 @@ namespace FastLoad
         public SteinmartDataReader()
         {
             initLookupStyle();
-            initShipVia();
+
             DirectoryInfo dirInfo = new DirectoryInfo(dir);
             FileInfo[] fileListInfo = dirInfo.GetFiles();
             this.so_list = new ArrayList();
@@ -99,6 +99,10 @@ namespace FastLoad
                 tr = new StreamReader(file);
                 processFile();
             }
+        }
+        public ArrayList GetSOList()
+        {
+            return so_list;
         }
         void processFile()
         {
@@ -125,6 +129,9 @@ namespace FastLoad
                 so.RequestDateStr = split[(int)dicFmt.ShipDate];
                 so.CancelDateStr = split[(int)dicFmt.CancelAfter];
                 so.OrderDateStr   = split[(int)dicFmt.PODate];
+                so.RequestDate = smConvertStrToDate(so.RequestDateStr);
+                so.NeedByDate = smConvertStrToDate(so.CancelDateStr);
+                so.OrderDate = smConvertStrToDate(so.OrderDateStr);
                 so.PoNo = split[(int)dicFmt.PONumber];
                 so.ShipVia = this.getShipVia(storeNo);
                 so.TermsCode = crTerms;
@@ -159,6 +166,17 @@ namespace FastLoad
             so = new SalesOrder();
             notFirstTime = true;
         }
+        public System.DateTime smConvertStrToDate(string dateStr)
+        {
+            string year = dateStr.Substring(6, 4);
+            string month = dateStr.Substring(0, 2);
+            string day = dateStr.Substring(3, 2);
+
+            System.DateTime dateObj = new DateTime(Convert.ToInt32(year),
+                Convert.ToInt32(month), Convert.ToInt32(day));
+            return dateObj;
+        }
+
         void initLookupStyle()
         {
             partXref = new Hashtable();
@@ -398,7 +416,6 @@ namespace FastLoad
             partXref.Add("52499852", "757026273825");
             // added for new order 12 feb 14  not tested
             
-            
             partXref.Add("52707528", "757026262034");
             partXref.Add("52709177", "757026266681");
             partXref.Add("52709334", "757026273962");
@@ -409,315 +426,10 @@ namespace FastLoad
             partXref.Add("52707585", "757026261969");
             partXref.Add("52828910", "757026273832");
             partXref.Add("52720638", "757026263482");
-            
-
-
-        }
-        void initShipVia()
-        {
-            shipViaHash = new Hashtable();
-            shipViaHash.Add("5","DOAK");
-            shipViaHash.Add("13","DOAK");
-            shipViaHash.Add("14","DOAK");
-            shipViaHash.Add("15","DOAK");
-            shipViaHash.Add("22","DOAK");
-            shipViaHash.Add("23","DOAK");
-            shipViaHash.Add("24","DOAK");
-            shipViaHash.Add("27","DOAK");
-            shipViaHash.Add("30","DOAK");
-            shipViaHash.Add("40","DOAK");
-            shipViaHash.Add("44","DOAK");
-            shipViaHash.Add("46","DOAK");
-            shipViaHash.Add("50","DOAK");
-            shipViaHash.Add("55","DOAK");
-            shipViaHash.Add("56","DOAK");
-            shipViaHash.Add("61","DOAK");
-            shipViaHash.Add("65","DOAK");
-            shipViaHash.Add("66","DOAK");
-            shipViaHash.Add("68","DOAK");
-            shipViaHash.Add("70","DOAK");
-            shipViaHash.Add("72","DOAK");
-            shipViaHash.Add("78","DOAK");
-            shipViaHash.Add("79","DOAK");
-            shipViaHash.Add("82","DOAK");
-            shipViaHash.Add("84","DOAK");
-            shipViaHash.Add("86","DOAK");
-            shipViaHash.Add("90","DOAK");
-            shipViaHash.Add("91","DOAK");
-            shipViaHash.Add("98","DOAK");
-            shipViaHash.Add("99","DOAK");
-            shipViaHash.Add("104","DOAK");
-            shipViaHash.Add("107","DOAK");
-            shipViaHash.Add("112","DOAK");
-            shipViaHash.Add("113","DOAK");
-            shipViaHash.Add("117","DOAK");
-            shipViaHash.Add("118","DOAK");
-            shipViaHash.Add("122","DOAK");
-            shipViaHash.Add("123","DOAK");
-            shipViaHash.Add("124","DOAK");
-            shipViaHash.Add("126","DOAK");
-            shipViaHash.Add("131","DOAK");
-            shipViaHash.Add("132","DOAK");
-            shipViaHash.Add("138","DOAK");
-            shipViaHash.Add("140","DOAK");
-            shipViaHash.Add("146","DOAK");
-            shipViaHash.Add("161","DOAK");
-            shipViaHash.Add("177","DOAK");
-            shipViaHash.Add("181","DOAK");
-            shipViaHash.Add("192","DOAK");
-            shipViaHash.Add("193","DOAK");
-            shipViaHash.Add("206","DOAK");
-            shipViaHash.Add("208","DOAK");
-            shipViaHash.Add("217","DOAK");
-            shipViaHash.Add("222","DOAK");
-            shipViaHash.Add("232","DOAK");
-            shipViaHash.Add("233","DOAK");
-            shipViaHash.Add("237","DOAK");
-            shipViaHash.Add("252","DOAK");
-            shipViaHash.Add("261","DOAK");
-            shipViaHash.Add("276","DOAK");
-            shipViaHash.Add("314","DOAK");
-            shipViaHash.Add("315","DOAK");
-            shipViaHash.Add("319","DOAK");
-            shipViaHash.Add("323","DOAK");
-            shipViaHash.Add("327","DOAK");
-            shipViaHash.Add("339","DOAK");
-            shipViaHash.Add("342", "DOAK");
-            shipViaHash.Add("343", "DOAK");
-            shipViaHash.Add("344", "DOAK");
-            shipViaHash.Add("349", "DOAK");
-            shipViaHash.Add("351", "DOAK");
-            shipViaHash.Add("354", "DOAK");
-            shipViaHash.Add("357", "DOAK");
-            shipViaHash.Add("359", "DOAK");
-            shipViaHash.Add("360", "DOAK");
-            shipViaHash.Add("1", "AOAK");
-            shipViaHash.Add("3", "AOAK");
-            shipViaHash.Add("4", "AOAK");
-            shipViaHash.Add("6", "AOAK");
-            shipViaHash.Add("7", "AOAK");
-            shipViaHash.Add("8", "AOAK");
-            shipViaHash.Add("10", "AOAK");
-            shipViaHash.Add("11", "AOAK");
-            shipViaHash.Add("12", "AOAK");
-            shipViaHash.Add("16", "AOAK");
-            shipViaHash.Add("18", "AOAK");
-            shipViaHash.Add("19", "AOAK");
-            shipViaHash.Add("25", "AOAK");
-            shipViaHash.Add("26", "AOAK");
-            shipViaHash.Add("28", "AOAK");
-            shipViaHash.Add("31", "AOAK");
-            shipViaHash.Add("32", "AOAK");
-            shipViaHash.Add("33", "AOAK");
-            shipViaHash.Add("36", "AOAK");
-            shipViaHash.Add("37", "AOAK");
-            shipViaHash.Add("38", "AOAK");
-            shipViaHash.Add("39", "AOAK");
-            shipViaHash.Add("41", "AOAK");
-            shipViaHash.Add("42", "AOAK");
-            shipViaHash.Add("43", "AOAK");
-            shipViaHash.Add("45", "AOAK");
-            shipViaHash.Add("47", "AOAK");
-            shipViaHash.Add("48", "AOAK");
-            shipViaHash.Add("49", "AOAK");
-            shipViaHash.Add("51", "AOAK");
-            shipViaHash.Add("52", "AOAK");
-            shipViaHash.Add("53", "AOAK");
-            shipViaHash.Add("54", "AOAK");
-            shipViaHash.Add("57", "AOAK");
-            shipViaHash.Add("58", "AOAK");
-            shipViaHash.Add("60", "AOAK");
-            shipViaHash.Add("62", "AOAK");
-            shipViaHash.Add("63", "AOAK");
-            shipViaHash.Add("67", "AOAK");
-            shipViaHash.Add("71", "AOAK");
-            shipViaHash.Add("73", "AOAK");
-            shipViaHash.Add("74", "AOAK");
-            shipViaHash.Add("75", "AOAK");
-            shipViaHash.Add("76", "AOAK");
-            shipViaHash.Add("81", "AOAK");
-            shipViaHash.Add("87", "AOAK");
-            shipViaHash.Add("89", "AOAK");
-            shipViaHash.Add("92", "AOAK");
-            shipViaHash.Add("94", "AOAK");
-            shipViaHash.Add("96", "AOAK");
-            shipViaHash.Add("97", "AOAK");
-            shipViaHash.Add("100", "AOAK");
-            shipViaHash.Add("102", "AOAK");
-            shipViaHash.Add("103", "AOAK");
-            shipViaHash.Add("105", "AOAK");
-            shipViaHash.Add("108", "AOAK");
-            shipViaHash.Add("116", "AOAK");
-            shipViaHash.Add("119", "AOAK");
-            shipViaHash.Add("120", "AOAK");
-            shipViaHash.Add("125", "AOAK");
-            shipViaHash.Add("127", "AOAK");
-            shipViaHash.Add("130", "AOAK");
-            shipViaHash.Add("134", "AOAK");
-            shipViaHash.Add("135", "AOAK");
-            shipViaHash.Add("136", "AOAK");
-            shipViaHash.Add("137", "AOAK");
-            shipViaHash.Add("139", "AOAK");
-            shipViaHash.Add("141", "AOAK");
-            shipViaHash.Add("149", "AOAK");
-            shipViaHash.Add("153", "AOAK");
-            shipViaHash.Add("155", "AOAK");
-            shipViaHash.Add("158", "AOAK");
-            shipViaHash.Add("160", "AOAK");
-            shipViaHash.Add("167", "AOAK");
-            shipViaHash.Add("174", "AOAK");
-            shipViaHash.Add("175", "AOAK");
-            shipViaHash.Add("180", "AOAK");
-            shipViaHash.Add("182", "AOAK");
-            shipViaHash.Add("183", "AOAK");
-            shipViaHash.Add("184", "AOAK");
-            shipViaHash.Add("185", "AOAK");
-            shipViaHash.Add("186", "AOAK");
-            shipViaHash.Add("188", "AOAK");
-            shipViaHash.Add("190", "AOAK");
-            shipViaHash.Add("194", "AOAK");
-            shipViaHash.Add("201", "AOAK");
-            shipViaHash.Add("202", "AOAK");
-            shipViaHash.Add("203", "AOAK");
-            shipViaHash.Add("204", "AOAK");
-            shipViaHash.Add("205", "AOAK");
-            shipViaHash.Add("207", "AOAK");
-            shipViaHash.Add("212", "AOAK");
-            shipViaHash.Add("213", "AOAK");
-            shipViaHash.Add("215", "AOAK");
-            shipViaHash.Add("216", "AOAK");
-            shipViaHash.Add("218", "AOAK");
-            shipViaHash.Add("219", "AOAK");
-            shipViaHash.Add("221", "AOAK");
-            shipViaHash.Add("223", "AOAK");
-            shipViaHash.Add("224", "AOAK");
-            shipViaHash.Add("225", "AOAK");
-            shipViaHash.Add("226", "AOAK");
-            shipViaHash.Add("228", "AOAK");
-            shipViaHash.Add("230", "AOAK");
-            shipViaHash.Add("236", "AOAK");
-            shipViaHash.Add("238", "AOAK");
-            shipViaHash.Add("239", "AOAK");
-            shipViaHash.Add("240", "AOAK");
-            shipViaHash.Add("243", "AOAK");
-            shipViaHash.Add("247", "AOAK");
-            shipViaHash.Add("249", "AOAK");
-            shipViaHash.Add("250", "AOAK");
-            shipViaHash.Add("253", "AOAK");
-            shipViaHash.Add("255", "AOAK");
-            shipViaHash.Add("262", "AOAK");
-            shipViaHash.Add("265", "AOAK");
-            shipViaHash.Add("266", "AOAK");
-            shipViaHash.Add("267", "AOAK");
-            shipViaHash.Add("268", "AOAK");
-            shipViaHash.Add("269", "AOAK");
-            shipViaHash.Add("271", "AOAK");
-            shipViaHash.Add("272", "AOAK");
-            shipViaHash.Add("275", "AOAK");
-            shipViaHash.Add("277", "AOAK");
-            shipViaHash.Add("278", "AOAK");
-            shipViaHash.Add("279", "AOAK");
-            shipViaHash.Add("280", "AOAK");
-            shipViaHash.Add("281", "AOAK");
-            shipViaHash.Add("283", "AOAK");
-            shipViaHash.Add("284", "AOAK");
-            shipViaHash.Add("286", "AOAK");
-            shipViaHash.Add("287", "AOAK");
-            shipViaHash.Add("288", "AOAK");
-            shipViaHash.Add("289", "AOAK");
-            shipViaHash.Add("290", "AOAK");
-            shipViaHash.Add("291", "AOAK");
-            shipViaHash.Add("293", "AOAK");
-            shipViaHash.Add("295", "AOAK");
-            shipViaHash.Add("296", "AOAK");
-            shipViaHash.Add("297", "AOAK");
-            shipViaHash.Add("298", "AOAK");
-            shipViaHash.Add("299", "AOAK");
-            shipViaHash.Add("301", "AOAK");
-            shipViaHash.Add("302", "AOAK");
-            shipViaHash.Add("303", "AOAK");
-            shipViaHash.Add("305", "AOAK");
-            shipViaHash.Add("307", "AOAK");
-            shipViaHash.Add("308", "AOAK");
-            shipViaHash.Add("309", "AOAK");
-            shipViaHash.Add("310", "AOAK");
-            shipViaHash.Add("312", "AOAK");
-            shipViaHash.Add("313", "AOAK");
-            shipViaHash.Add("316", "AOAK");
-            shipViaHash.Add("317", "AOAK");
-            shipViaHash.Add("320", "AOAK");
-            shipViaHash.Add("321", "AOAK");
-            shipViaHash.Add("322", "AOAK");
-            shipViaHash.Add("324", "AOAK");
-            shipViaHash.Add("325", "AOAK");
-            shipViaHash.Add("326", "AOAK");
-            shipViaHash.Add("329", "AOAK");
-            shipViaHash.Add("330", "AOAK");
-            shipViaHash.Add("331", "AOAK");
-            shipViaHash.Add("332", "AOAK");
-            shipViaHash.Add("333", "AOAK");
-            shipViaHash.Add("334", "AOAK");
-            shipViaHash.Add("335", "AOAK");
-            shipViaHash.Add("337", "AOAK");
-            shipViaHash.Add("338", "AOAK");
-            shipViaHash.Add("341", "AOAK");
-            shipViaHash.Add("345", "AOAK");
-            shipViaHash.Add("346", "AOAK");
-            shipViaHash.Add("348", "AOAK");
-            shipViaHash.Add("352", "AOAK");
-            shipViaHash.Add("353", "AOAK");
-            shipViaHash.Add("356", "AOAK");
-            shipViaHash.Add("703", "AOAK");
-            shipViaHash.Add("704", "AOAK");
-            shipViaHash.Add("80", "COAK");
-            shipViaHash.Add("85", "COAK");
-            shipViaHash.Add("88", "COAK");
-            shipViaHash.Add("93", "COAK");
-            shipViaHash.Add("106", "COAK");
-            shipViaHash.Add("121", "COAK");
-            shipViaHash.Add("143", "COAK");
-            shipViaHash.Add("148", "COAK");
-            shipViaHash.Add("154", "COAK");
-            shipViaHash.Add("173", "COAK");
-            shipViaHash.Add("187", "COAK");
-            shipViaHash.Add("198", "COAK");
-            shipViaHash.Add("199", "COAK");
-            shipViaHash.Add("210", "COAK");
-            shipViaHash.Add("214", "COAK");
-            shipViaHash.Add("220", "COAK");
-            shipViaHash.Add("229", "COAK");
-            shipViaHash.Add("234", "COAK");
-            shipViaHash.Add("245", "COAK");
-            shipViaHash.Add("246", "COAK");
-            shipViaHash.Add("248", "COAK");
-            shipViaHash.Add("251", "COAK");
-            shipViaHash.Add("270", "COAK");
-            shipViaHash.Add("273", "COAK");
-            shipViaHash.Add("274", "COAK");
-            shipViaHash.Add("294", "COAK");
-            shipViaHash.Add("304", "COAK");
-            shipViaHash.Add("311", "COAK");
-            shipViaHash.Add("318", "COAK");
-            shipViaHash.Add("328", "COAK");
-            shipViaHash.Add("336", "COAK");
-            shipViaHash.Add("340", "COAK");
-            shipViaHash.Add("347", "COAK");
-            shipViaHash.Add("350", "COAK");
-            shipViaHash.Add("355", "COAK");
-            shipViaHash.Add("358", "COAK");
-            shipViaHash.Add("701", "COAK");
         }
         string getShipVia(string store)
         {
-            string shipVia = "UGND";
-            try
-            {
-                shipVia = shipViaHash[store].ToString();
-            }
-            catch
-            {
-                shipVia = "UGND";
-            }
+            string shipVia = "CPKP";
             return shipVia;
         }
         string getCaUpc(string smPart)

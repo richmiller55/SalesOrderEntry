@@ -7,7 +7,7 @@ namespace FastLoad
         string upc;
         decimal orderQty;
         decimal unitPrice;
-        decimal sellingFactor;
+        decimal sellingFactor = 1;
         string sellingFactorDirection;
         decimal sellingQty;
 

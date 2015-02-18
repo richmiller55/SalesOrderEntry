@@ -298,7 +298,6 @@ namespace FastLoad
             get { return character01; }
             set { character01 = value; }
         }
-
         public System.DateTime convertStrToDate(string dateStr)
         {
             string year = dateStr.Substring(0, 4);

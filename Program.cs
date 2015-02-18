@@ -1,4 +1,7 @@
-﻿using System;
+﻿#undef STEINMART
+#define NORMAL
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -103,108 +106,110 @@ namespace SalesOrdEntry
         }
         static void LoadSalesOrder(SalesOrderSvcContractClient salesOrderClient, SalesOrder so, out string result)
         {
-                var ts = new SalesOrderTableset();
-                result = "p_";
-                salesOrderClient.GetNewOrderHed(ref ts);
-                
-                var newRow = ts.OrderHed.Where(n => n.RowMod.Equals("A", StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-                // Guid rowID = newRow.SysRowID;
+            var ts = new SalesOrderTableset();
+            result = "p_";
+            salesOrderClient.GetNewOrderHed(ref ts);
 
-                // FastLoad.SalesOrder so = new FastLoad.SalesOrder();
-                E10Lookup look = new E10Lookup();
-                int custNum = look.GetCustomerNum(so.CustomerID);
-                
-                if (newRow != null)
+            var newRow = ts.OrderHed.Where(n => n.RowMod.Equals("A", StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            // Guid rowID = newRow.SysRowID;
+
+            // FastLoad.SalesOrder so = new FastLoad.SalesOrder();
+            E10Lookup look = new E10Lookup();
+            int custNum = look.GetCustomerNum(so.CustomerID);
+
+            if (newRow != null)
+            {
+                newRow.Company = so.Company;
+
+                Epicor.SalesOrderSvc.UserDefinedColumns columns = newRow.UserDefinedColumns;
+
+                /*
+                foreach (KeyValuePair<string, object> kvp in columns)
                 {
-                    newRow.Company = so.Company;
-            
-                    Epicor.SalesOrderSvc.UserDefinedColumns columns = newRow.UserDefinedColumns;
-            
-                    /*
-                    foreach (KeyValuePair<string, object> kvp in columns)
-                    {
-                        Console.WriteLine("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
-                    }
-                    */
-                    columns["OrderType_c"] = "EDI";
-                     columns["EDIHeadChar11_c"] = "";
-                    // columns["EDIHeadChar11_c"] = "hello";
+                    Console.WriteLine("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
+                }
+                */
+                columns["OrderType_c"] = "EDI";
+                columns["EDIHeadChar11_c"] = "";
+                // columns["EDIHeadChar11_c"] = "hello";
 
-                    // newRow.BTCustID = so.CustomerID;
-                    newRow.CustNum = custNum;
-                    newRow.BTCustNum = custNum;
-                    if (so.ShipVia.Equals("UGND"))
-                    {
-                        newRow.ShipViaCode = "UPGD";
-                    } else {
-                        newRow.ShipViaCode = so.ShipVia;
-                    }
+                // newRow.BTCustID = so.CustomerID;
+                newRow.CustNum = custNum;
+                newRow.BTCustNum = custNum;
+                if (so.ShipVia.Equals("UGND"))
+                {
+                    newRow.ShipViaCode = "UPGD";
+                }
+                else
+                {
+                    newRow.ShipViaCode = so.ShipVia;
+                }
 
-                    newRow.PONum = so.PoNo;
-                    newRow.TermsCode = so.TermsCode;
-                    newRow.ShipToNum = so.ShipToNum;
-                    newRow.ShipToCustNum = custNum;
-                    newRow.NeedByDate = so.NeedByDate;
-                    newRow.OrderDate = so.OrderDate;
-                    newRow.RequestDate = so.RequestDate;
-                    newRow.RowMod = "A";
+                newRow.PONum = so.PoNo;
+                newRow.TermsCode = so.TermsCode;
+                newRow.ShipToNum = so.ShipToNum;
+                newRow.ShipToCustNum = custNum;
+                newRow.NeedByDate = so.NeedByDate;
+                newRow.OrderDate = so.OrderDate;
+                newRow.RequestDate = so.RequestDate;
+                newRow.RowMod = "A";
+                try
+                {
+                    salesOrderClient.Update(ref ts);
+                }
+                catch (Exception e)
+                {
+                    string message = e.Message;
+                    result = message.Substring(0, 3);
+                    bool AllOk = false;
+                }
+            }
+
+            int orderNum = ts.OrderHed[0].OrderNum;
+
+            ts = salesOrderClient.GetByID(orderNum);
+
+            if (ts != null)
+            {
+                result = orderNum.ToString();
+                foreach (OrderLine line in so.lines)
+                {
+                    salesOrderClient.GetNewOrderDtl(ref ts, orderNum);
+                    string PartDescription = look.GetPartDescr(line.Upc);
+                    //  ts = salesOrderClient.GetByID(orderNum);
+                    string dtlrow = ts.OrderDtl[0].RowMod;
+                    var newDtlRow = ts.OrderDtl.Where(n => n.RowMod.Equals("A", StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                    newDtlRow.PartNum = line.Upc;
+                    newDtlRow.PartNumPartDescription = PartDescription;
+                    newDtlRow.LineDesc = PartDescription;
+                    newDtlRow.XPartNum = so.CustomerPart;
+                    newDtlRow.OrderLine = line.LineNum;
+                    newDtlRow.OrderQty = line.OrderQty;
+                    newDtlRow.PricingQty = line.OrderQty;
+                    newDtlRow.SellingQuantity = line.OrderQty;
+                    newDtlRow.SalesUM = so.Get_UOM_FromSellingFactor(line.SellingFactor);
+
+                    // newDtlRow.DocInUnitPrice = line.UnitPrice;
+                    newDtlRow.DocUnitPrice = line.UnitPrice;
+                    // newDtlRow.Reference = "123456";
+                    newDtlRow.UnitPrice = line.UnitPrice;
+                    newDtlRow.SellingFactor = line.SellingFactor;
+
+                    newDtlRow.RowMod = "A";
+                    // newRow.RowMod = "U";
                     try
                     {
                         salesOrderClient.Update(ref ts);
+                        ts = salesOrderClient.GetByID(orderNum);
                     }
-                    catch (Exception e)
+                    catch (Exception ex2)
                     {
-                        string message = e.Message;
-                        result = message.Substring(0, 3);
-                        bool AllOk = false;
+                        string mess2 = ex2.Message;
+                        // result = ex2.Message;
                     }
-                }
 
-                int orderNum = ts.OrderHed[0].OrderNum;
-                
-                ts = salesOrderClient.GetByID(orderNum);
-                
-                if (ts != null)
-                {
-                    result = orderNum.ToString();
-                    foreach (OrderLine line in so.lines)
-                    {
-                        salesOrderClient.GetNewOrderDtl(ref ts, orderNum);
-                        string PartDescription = look.GetPartDescr(line.Upc);
-                        //  ts = salesOrderClient.GetByID(orderNum);
-                        string dtlrow = ts.OrderDtl[0].RowMod;
-                        var newDtlRow = ts.OrderDtl.Where(n => n.RowMod.Equals("A", StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-                        newDtlRow.PartNum = line.Upc;
-                        newDtlRow.PartNumPartDescription = PartDescription;
-                        newDtlRow.LineDesc = PartDescription;
-                        newDtlRow.XPartNum = so.CustomerPart;
-                        newDtlRow.OrderLine = line.LineNum;
-                        newDtlRow.OrderQty = line.OrderQty;
-                        newDtlRow.PricingQty = line.OrderQty;
-                        newDtlRow.SellingQuantity = line.OrderQty;
-                        newDtlRow.SalesUM = so.Get_UOM_FromSellingFactor(line.SellingFactor);
-                        
-                        // newDtlRow.DocInUnitPrice = line.UnitPrice;
-                        newDtlRow.DocUnitPrice = line.UnitPrice;
-                        // newDtlRow.Reference = "123456";
-                        newDtlRow.UnitPrice = line.UnitPrice;
-                        newDtlRow.SellingFactor = line.SellingFactor;
-                        
-                        newDtlRow.RowMod = "A";
-                        // newRow.RowMod = "U";
-                        try
-                        {
-                            salesOrderClient.Update(ref ts);
-                            ts = salesOrderClient.GetByID(orderNum);
-                        }
-                        catch (Exception ex2)
-                        {
-                            string mess2 = ex2.Message;
-                            // result = ex2.Message;
-                        }
-                        
-                    }
                 }
+            }
         }
 
         [STAThread]
@@ -232,6 +237,7 @@ namespace SalesOrdEntry
             SalesOrderSvcContractClient salesOrderClient = GetClient<SalesOrderSvcContractClient, SalesOrderSvcContract>(builder.Uri.ToString(), epiorUserPassword, epicorUserID, bindingType);
 
             Guid sessionId = Guid.Empty;
+#if NORMAL
             try
             {
                 sessionId = sessionModClient.Login();
@@ -279,5 +285,40 @@ namespace SalesOrdEntry
                 sessionModClient.Logout();
             }
         }
+
+#endif
+#if STEINMART
+            try
+            {
+                sessionId = sessionModClient.Login();
+                sessionModClient.Endpoint.Behaviors.Add(new HookServiceBehavior(sessionId, epicorUserID));
+                salesOrderClient.Endpoint.Behaviors.Add(new HookServiceBehavior(sessionId, epicorUserID));
+                SteinmartDataReader reader = new SteinmartDataReader();
+                ArrayList so_list = reader.GetSOList();
+                foreach (SalesOrder so in so_list)
+                {
+                    string result;
+                    try
+                    {
+                        LoadSalesOrder(salesOrderClient, so, out result);
+                    }
+                    catch (Exception e)
+                    {
+                        string message = e.Message;
+                        
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ex" + ex.Message);
+                sessionModClient.Logout();
+            }
+            if (sessionId != Guid.Empty)
+            {
+                sessionModClient.Logout();
+            }
+        }
+#endif
     }
 }
