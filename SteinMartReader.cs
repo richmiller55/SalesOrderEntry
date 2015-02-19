@@ -76,20 +76,19 @@ namespace FastLoad
     class SteinmartDataReader
     {
         string dir = @"C:\Users\rmiller\EDI_Data\steinmart\";
-        
+
         // string dir = "I:/edi/steinMart/up/";
-        
+
         StreamReader tr;
         // SalesOrder ord; try with out this
         ArrayList so_list;
-	    Hashtable partXref;
+        Hashtable partXref;
         Hashtable shipViaHash;
-	    string crTerms = "N30";
+        string crTerms = "N30";
         string custId = "75070";
         public SteinmartDataReader()
         {
             initLookupStyle();
-
             DirectoryInfo dirInfo = new DirectoryInfo(dir);
             FileInfo[] fileListInfo = dirInfo.GetFiles();
             this.so_list = new ArrayList();
@@ -116,9 +115,9 @@ namespace FastLoad
                 string customerId = this.custId;
                 string storeNoPre = split[(int)dicFmt.MarkForLocation];
                 int storeInt = Convert.ToInt32(storeNoPre);
-                string storeNo = storeInt.ToString();   
-                
-                if (lastStoreNo != storeNo && notFirstTime) 
+                string storeNo = storeInt.ToString();
+
+                if (lastStoreNo != storeNo && notFirstTime)
                 {
                     so_list.Add(so);
                     so = new SalesOrder();
@@ -126,23 +125,26 @@ namespace FastLoad
                 }
                 so.CustomerID = customerId;
                 so.ShipToNum = storeNo;
+                string DCNumber = split[(int)dicFmt.ShipToStoreName];
+                
+                so.ediMarkingNotes = DCNumber + "--->  " + storeNo;
                 so.RequestDateStr = split[(int)dicFmt.ShipDate];
                 so.CancelDateStr = split[(int)dicFmt.CancelAfter];
-                so.OrderDateStr   = split[(int)dicFmt.PODate];
+                so.OrderDateStr = split[(int)dicFmt.PODate];
                 so.RequestDate = smConvertStrToDate(so.RequestDateStr);
                 so.NeedByDate = smConvertStrToDate(so.CancelDateStr);
                 so.OrderDate = smConvertStrToDate(so.OrderDateStr);
                 so.PoNo = split[(int)dicFmt.PONumber];
                 so.ShipVia = this.getShipVia(storeNo);
                 so.TermsCode = crTerms;
-                
+
                 bool processLine = true;
                 string smPart = split[(int)dicFmt.SKUNumber];
                 so.CustomerPart = smPart;
-                
+
                 try
                 {
-                   so.Upc = partXref[smPart].ToString();
+                    so.Upc = partXref[smPart].ToString();
                 }
                 catch
                 {
@@ -152,7 +154,7 @@ namespace FastLoad
                 so.PartRevision = "0";
                 so.OrderQty = Convert.ToDecimal(split[(int)dicFmt.Qty]);
                 so.UnitPrice = Convert.ToDecimal(split[(int)dicFmt.UnitPrice]);
-                
+
                 if (processLine)
                 {
                     so.postLine();
@@ -160,7 +162,7 @@ namespace FastLoad
                 lastStoreNo = storeNo;
                 notFirstTime = true;
             }
-            
+
             // append order to collection            
             so_list.Add(so);
             so = new SalesOrder();
@@ -183,7 +185,7 @@ namespace FastLoad
             partXref.Add("15908403", "757026153448");
             partXref.Add("16694127", "757026136601");
             partXref.Add("16694135", "757026131477");
-            partXref.Add("16694101", "757026161313"); 
+            partXref.Add("16694101", "757026161313");
             partXref.Add("21230842", "757026176102");
             partXref.Add("21230859", "757026167049");
             partXref.Add("21230867", "757026177062");
@@ -393,7 +395,7 @@ namespace FastLoad
             partXref.Add("48036248", "757026232242");
             partXref.Add("48036263", "757026232112");
             partXref.Add("48048896", "757026198388");
-            
+
             partXref.Add("49732944", "757026233683");
             partXref.Add("49733017", "757026239005");
             partXref.Add("49735525", "757026238978");
@@ -415,7 +417,7 @@ namespace FastLoad
             partXref.Add("52499837", "757026273948");
             partXref.Add("52499852", "757026273825");
             // added for new order 12 feb 14  not tested
-            
+
             partXref.Add("52707528", "757026262034");
             partXref.Add("52709177", "757026266681");
             partXref.Add("52709334", "757026273962");

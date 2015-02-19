@@ -152,6 +152,12 @@ namespace SalesOrdEntry
                 newRow.NeedByDate = so.NeedByDate;
                 newRow.OrderDate = so.OrderDate;
                 newRow.RequestDate = so.RequestDate;
+#if STEINMART
+                newRow.PickListComment = so.ediMarkingNotes;
+                newRow.RefNotes = so.ediMarkingNotes;
+                newRow.ShipComment = so.ediMarkingNotes;
+
+#endif
                 newRow.RowMod = "A";
                 try
                 {

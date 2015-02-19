@@ -65,6 +65,8 @@ namespace FastLoad
         }
         public string SellingUOM
         { get; set; }
+        public string ediMarkingNotes
+        { get; set; }
         public string GLN
         {
             get
