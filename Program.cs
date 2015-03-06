@@ -188,7 +188,7 @@ namespace SalesOrdEntry
                     newDtlRow.PartNum = line.Upc;
                     newDtlRow.PartNumPartDescription = PartDescription;
                     newDtlRow.LineDesc = PartDescription;
-                    newDtlRow.XPartNum = so.CustomerPart;
+                    newDtlRow.XPartNum = line.CustomerPart;
                     newDtlRow.OrderLine = line.LineNum;
                     newDtlRow.OrderQty = line.OrderQty;
                     newDtlRow.PricingQty = line.OrderQty;

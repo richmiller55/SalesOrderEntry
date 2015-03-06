@@ -87,6 +87,9 @@ namespace FastLoad
                             case "buyerPartNo":
                                 order.CustomerPart = reader.Value;
                                 break;
+                            case "CustomerPart":
+                                order.CustomerPart = reader.Value;
+                                break;
                             case "SellingFactor":
                                 order.SellingFactor = System.Convert.ToDecimal(reader.Value);
                                 break;

@@ -95,6 +95,18 @@ namespace FastLoad
             string UOM = "EA";
             switch (sellingFactor_i)
             {
+                case 2:
+                    UOM = "PK2";
+                    break;
+                case 3:
+                    UOM = "PK3";
+                    break;
+                case 4:
+                    UOM = "PK4";
+                    break;
+                case 5:
+                    UOM = "PK5";
+                    break;
                 case 6:
                     UOM = "PK6";
                     break;
@@ -112,6 +124,9 @@ namespace FastLoad
                     break;
                 case 25:
                     UOM = "PK25";
+                    break;
+                case 50:
+                    UOM = "PK50";
                     break;
                 case 100:
                     UOM = "PK100";
