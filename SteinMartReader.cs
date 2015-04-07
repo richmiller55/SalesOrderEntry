@@ -103,64 +103,73 @@ namespace FastLoad
         {
             return so_list;
         }
+                     
         void processFile()
         {
             string line = "";
             string lastStoreNo = "first";
             bool notFirstTime = false;
             SalesOrder so = new SalesOrder();
-            while ((line = tr.ReadLine()) != null)
+            try
             {
-                string[] split = line.Split(new Char[] { '\t' });
-                string customerId = this.custId;
-                string storeNoPre = split[(int)dicFmt.MarkForLocation];
-                int storeInt = Convert.ToInt32(storeNoPre);
-                string storeNo = storeInt.ToString();
 
-                if (lastStoreNo != storeNo && notFirstTime)
+                while ((line = tr.ReadLine()) != null)
                 {
-                    so_list.Add(so);
-                    so = new SalesOrder();
+                    string[] split = line.Split(new Char[] { '\t' });
+                    string customerId = this.custId;
+                    string storeNoPre = split[(int)dicFmt.MarkForLocation];
+                    int storeInt = Convert.ToInt32(storeNoPre);
+                    string storeNo = storeInt.ToString();
+
+                    if (lastStoreNo != storeNo && notFirstTime)
+                    {
+                        so_list.Add(so);
+                        so = new SalesOrder();
+                        notFirstTime = true;
+                    }
+                    so.CustomerID = customerId;
+                    so.ShipToNum = storeNo;
+                    string DCNumber = split[(int)dicFmt.ShipToStoreName];
+
+                    so.ediMarkingNotes = DCNumber + "--->  " + storeNo;
+                    so.RequestDateStr = split[(int)dicFmt.ShipDate];
+                    so.CancelDateStr = split[(int)dicFmt.CancelAfter];
+                    so.OrderDateStr = split[(int)dicFmt.PODate];
+                    so.RequestDate = smConvertStrToDate(so.RequestDateStr);
+                    so.NeedByDate = smConvertStrToDate(so.CancelDateStr);
+                    so.OrderDate = smConvertStrToDate(so.OrderDateStr);
+                    so.PoNo = split[(int)dicFmt.PONumber];
+                    so.ShipVia = this.getShipVia(storeNo);
+                    so.TermsCode = crTerms;
+
+                    bool processLine = true;
+                    string smPart = split[(int)dicFmt.SKUNumber];
+                    so.CustomerPart = smPart;
+
+                    try
+                    {
+                        so.Upc = partXref[smPart].ToString();
+                    }
+                    catch
+                    {
+                        // MessageBox.Show("This Steinmart UPC does not match "  + smPart);
+                        processLine = false;
+                    }
+                    so.PartRevision = "0";
+                    so.OrderQty = Convert.ToDecimal(split[(int)dicFmt.Qty]);
+                    so.UnitPrice = Convert.ToDecimal(split[(int)dicFmt.UnitPrice]);
+
+                    if (processLine)
+                    {
+                        so.postLine();
+                    }
+                    lastStoreNo = storeNo;
                     notFirstTime = true;
                 }
-                so.CustomerID = customerId;
-                so.ShipToNum = storeNo;
-                string DCNumber = split[(int)dicFmt.ShipToStoreName];
-                
-                so.ediMarkingNotes = DCNumber + "--->  " + storeNo;
-                so.RequestDateStr = split[(int)dicFmt.ShipDate];
-                so.CancelDateStr = split[(int)dicFmt.CancelAfter];
-                so.OrderDateStr = split[(int)dicFmt.PODate];
-                so.RequestDate = smConvertStrToDate(so.RequestDateStr);
-                so.NeedByDate = smConvertStrToDate(so.CancelDateStr);
-                so.OrderDate = smConvertStrToDate(so.OrderDateStr);
-                so.PoNo = split[(int)dicFmt.PONumber];
-                so.ShipVia = this.getShipVia(storeNo);
-                so.TermsCode = crTerms;
-
-                bool processLine = true;
-                string smPart = split[(int)dicFmt.SKUNumber];
-                so.CustomerPart = smPart;
-
-                try
-                {
-                    so.Upc = partXref[smPart].ToString();
-                }
-                catch
-                {
-                    // MessageBox.Show("This Steinmart UPC does not match "  + smPart);
-                    processLine = false;
-                }
-                so.PartRevision = "0";
-                so.OrderQty = Convert.ToDecimal(split[(int)dicFmt.Qty]);
-                so.UnitPrice = Convert.ToDecimal(split[(int)dicFmt.UnitPrice]);
-
-                if (processLine)
-                {
-                    so.postLine();
-                }
-                lastStoreNo = storeNo;
-                notFirstTime = true;
+            }
+            catch (Exception e)
+            {
+                string message = e.Message;
             }
 
             // append order to collection            
