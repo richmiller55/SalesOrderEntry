@@ -152,6 +152,8 @@ namespace SalesOrdEntry
                 newRow.NeedByDate = so.NeedByDate;
                 newRow.OrderDate = so.OrderDate;
                 newRow.RequestDate = so.RequestDate;
+                newRow.ReadyToCalc = true;
+                
 #if STEINMART
                 newRow.PickListComment = so.ediMarkingNotes;
                 newRow.RefNotes = so.ediMarkingNotes;
@@ -214,6 +216,18 @@ namespace SalesOrdEntry
                         // result = ex2.Message;
                     }
 
+                }
+                try
+                {
+                    ts = salesOrderClient.GetByID(orderNum);
+                    TaxConnectStatusRow taxrow = ts.TaxConnectStatus.First();
+                    taxrow.ETCOffline = true;
+                    salesOrderClient.Update(ref ts);
+                }
+                catch (Exception ex2)
+                {
+                    string messtaxOffline = ex2.Message;
+                    // result = ex2.Message;
                 }
             }
         }

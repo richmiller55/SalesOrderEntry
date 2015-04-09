@@ -31,7 +31,7 @@ namespace SalesOrdEntry
                           now.Minute.ToString("00") +
                           now.Second.ToString("00");
             string newFileName = prefix + "_" + message + "_" + date + "_" + time + ".xml";
-            string dumpPath = @"Z:\e10\EDI_Data\p20150407";
+            string dumpPath = @"Z:\e10\EDI_Data\p20150409";
             if (!System.IO.File.Exists(dumpPath))
             {
                 System.IO.Directory.CreateDirectory(dumpPath);
