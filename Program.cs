@@ -134,6 +134,7 @@ namespace SalesOrdEntry
                 // columns["EDIHeadChar11_c"] = "hello";
 
                 // newRow.BTCustID = so.CustomerID;
+                
                 newRow.CustNum = custNum;
                 newRow.BTCustNum = custNum;
                 if (so.ShipVia.Equals("UGND"))
@@ -150,6 +151,7 @@ namespace SalesOrdEntry
                 newRow.ShipToNum = so.ShipToNum;
                 newRow.ShipToCustNum = custNum;
                 newRow.NeedByDate = so.NeedByDate;
+                
                 newRow.OrderDate = so.OrderDate;
                 newRow.RequestDate = so.RequestDate;
                 newRow.ReadyToCalc = true;
@@ -182,12 +184,18 @@ namespace SalesOrdEntry
                 result = orderNum.ToString();
                 foreach (OrderLine line in so.lines)
                 {
+                    bool Inactive = look.IsPartInActive(line.Upc);
+                    if (Inactive)
+                    {
+                        continue;
+                    }
                     salesOrderClient.GetNewOrderDtl(ref ts, orderNum);
                     string PartDescription = look.GetPartDescr(line.Upc);
                     //  ts = salesOrderClient.GetByID(orderNum);
                     string dtlrow = ts.OrderDtl[0].RowMod;
                     var newDtlRow = ts.OrderDtl.Where(n => n.RowMod.Equals("A", StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
                     newDtlRow.PartNum = line.Upc;
+                    
                     newDtlRow.PartNumPartDescription = PartDescription;
                     newDtlRow.LineDesc = PartDescription;
                     newDtlRow.XPartNum = line.CustomerPart;
@@ -202,7 +210,7 @@ namespace SalesOrdEntry
                     // newDtlRow.Reference = "123456";
                     newDtlRow.UnitPrice = line.UnitPrice;
                     newDtlRow.SellingFactor = line.SellingFactor;
-
+                    // newDtlRow.RevisionNum = "PCK";
                     newDtlRow.RowMod = "A";
                     // newRow.RowMod = "U";
                     try

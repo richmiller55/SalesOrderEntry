@@ -33,6 +33,23 @@ namespace SalesOrdEntry
             string partDescription = query.First();
             return partDescription;
         }
+        public bool IsPartInActive(string PartNum)
+        {
+            DataContext context = new DataContext(this.connectionString);
+            Table<Part> parts = context.GetTable<Part>();
+            IQueryable<string> query =
+                from n in parts
+                where n.PartNum.Equals(PartNum)
+                select n.InActive.ToString();
+
+            string result = query.First();
+            bool q = false;
+            if (result.Equals("True"))
+            {
+                q = true;
+            }
+            return q;
+        }
         public int GetCustomerNum(string CustId)
         {
             DataContext context = new DataContext(this.connectionString);

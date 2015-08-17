@@ -193,7 +193,7 @@ namespace FastLoad
             partXref = new Hashtable();
             partXref.Add("15908403", "757026153448");
             partXref.Add("16694127", "757026136601");
-            partXref.Add("16694135", "757026131477");
+            
             partXref.Add("16694101", "757026161313");
             partXref.Add("21230842", "757026176102");
             partXref.Add("21230859", "757026167049");
@@ -437,6 +437,7 @@ namespace FastLoad
             partXref.Add("52707585", "757026261969");
             partXref.Add("52828910", "757026273832");
             partXref.Add("52720638", "757026263482");
+            partXref.Add("16694135", "757026227408");
         }
         string getShipVia(string store)
         {
